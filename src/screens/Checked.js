@@ -1,12 +1,14 @@
 import {StyleSheet, Text, View, TouchableOpacity, Alert} from 'react-native';
 import React from 'react';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useDispatch, useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {parse} from '@babel/core';
 import {setItemID, setItems} from '../redux/actions';
 import {FlatList} from 'react-native-gesture-handler';
 import CheckBox from '@react-native-community/checkbox';
+import LinearGradient from 'react-native-linear-gradient';
 
 export default function Checked({navigation}) {
   const {items} = useSelector(state => state.itemReducer);
@@ -17,28 +19,21 @@ export default function Checked({navigation}) {
     AsyncStorage.setItem('Items', JSON.stringify(filteredItems))
       .then(() => {
         dispatch(setItems(filteredItems));
-        Alert.alert('Sukces!', 'Przedmiot skasowany pomyślnie.');
       })
       .catch(err => {
         console.log(err);
       });
   };
 
-  const checkItem = (ID, newValue) => {
-    const index = items.find(item => item.id === ID);
-    if (index) {
-      const newItems = [...items];
-      const newNewItem = newItems.map(item => {
-        if (item.id === index.id) item.exists = newValue;
-        return item;
+  const deleteAllItems = () => {
+    const filteredItems = items.filter(item => item.exists !== true);
+    AsyncStorage.setItem('Items', JSON.stringify(filteredItems))
+      .then(() => {
+        dispatch(setItems(filteredItems));
+      })
+      .catch(err => {
+        console.log(err);
       });
-      AsyncStorage.setItem('Items', JSON.stringify(newNewItem))
-        .then(() => {
-          dispatch(setItems(newNewItem));
-          Alert.alert('Sukces!', 'Przedmiot zapisany pomyślnie.');
-        })
-        .catch(err => console.log(err));
-    }
   };
 
   return (
@@ -50,21 +45,19 @@ export default function Checked({navigation}) {
             style={styles.item}
             onPress={() => {
               dispatch(setItemID(item.id));
-              navigation.navigate('Przedmiot');
+              navigation.navigate('Dodaj przedmiot');
             }}>
             <View style={styles.item_row}>
-              <CheckBox
-                value={item.exists}
-                onValueChange={newValue => {
-                  checkItem(item.id, newValue);
-                }}
-              />
+              <View
+                style={[
+                  styles.color,
+                  {
+                    backgroundColor: item.color,
+                  },
+                ]}></View>
               <View style={styles.item_body}>
                 <Text style={styles.name} numberOfLines={1}>
                   {item.name}
-                </Text>
-                <Text style={styles.desc} numberOfLines={1}>
-                  {item.desc}
                 </Text>
               </View>
               <TouchableOpacity
@@ -81,6 +74,21 @@ export default function Checked({navigation}) {
           index.toString();
         }}
       />
+      <LinearGradient
+        colors={['#7D0085', '#430085']}
+        style={styles.buttonGradient}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            deleteAllItems();
+          }}>
+          <MaterialCommunityIcons
+            name={'reload'}
+            size={32.5}
+            color={'#ffffff'}
+          />
+        </TouchableOpacity>
+      </LinearGradient>
     </View>
   );
 }
@@ -96,6 +104,24 @@ const styles = StyleSheet.create({
   item_body: {
     flex: 1,
   },
+  buttonGradient: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    elevation: 5,
+  },
+  button: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   delete: {
     width: 50,
     height: 50,
@@ -105,7 +131,7 @@ const styles = StyleSheet.create({
   item: {
     marginHorizontal: 10,
     marginVertical: 7,
-    paddingHorizontal: 10,
+
     backgroundColor: '#ffffff',
     justifyContent: 'center',
     borderRadius: 10,
@@ -120,5 +146,12 @@ const styles = StyleSheet.create({
     color: '#999999',
     fontSize: 20,
     margin: 5,
+  },
+  color: {
+    width: 20,
+    height: 100,
+    borderBottomLeftRadius: 10,
+    borderTopLeftRadius: 10,
+    paddingHorizontal: 10,
   },
 });

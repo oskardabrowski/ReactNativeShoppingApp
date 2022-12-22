@@ -7,16 +7,11 @@ import {setItems} from '../redux/actions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CheckBox from '@react-native-community/checkbox';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import {Modal} from 'react-native';
-import PushNotification from 'react-native-push-notification';
 
 export default function Item({navigation}) {
   const [name, setName] = useState('');
-  const [desc, setDesc] = useState('');
   const [exists, setExists] = useState(false);
-  const [showBellModal, setShowBellModal] = useState(false);
   const [color, setColor] = useState('white');
-  const [bellTime, setBellTime] = useState('1');
 
   const {items, itemID} = useSelector(state => state.itemReducer);
   const dispatch = useDispatch();
@@ -29,7 +24,6 @@ export default function Item({navigation}) {
     const Item = items.find(item => item.id === itemID);
     if (Item) {
       setName(Item.name);
-      setDesc(Item.desc);
       setExists(Item.exists);
       setColor(Item.color);
     }
@@ -43,7 +37,6 @@ export default function Item({navigation}) {
         let Item = {
           id: itemID,
           name: name,
-          desc: desc,
           exists: exists,
           color: color,
         };
@@ -68,7 +61,6 @@ export default function Item({navigation}) {
         AsyncStorage.setItem('Items', JSON.stringify(newItems))
           .then(() => {
             dispatch(setItems(newItems));
-            Alert.alert('Sukces!', 'Przedmiot został dodany.');
             navigation.goBack();
           })
           .catch(err => {
@@ -80,113 +72,55 @@ export default function Item({navigation}) {
     }
   };
 
-  const setTaskAlarm = () => {
-    PushNotification.localNotificationSchedule({
-      channelId: 'task-channel',
-      title: name,
-      message: desc,
-      date: new Date(Date.now() + parseInt(bellTime) * 60 * 1000),
-      allowWhileIdle: true,
-    });
-  };
-
   return (
     <View style={styles.body}>
-      <Modal
-        visible={showBellModal}
-        transparent
-        onRequestClose={() => setShowBellModal(false)}
-        animationType="slide"
-        hardwareAccelerated
-        style={styles.modal_style}>
-        <View style={styles.centered_view}>
-          <View style={styles.bell_modal}>
-            <View style={styles.bell_body}>
-              <Text style={styles.text}>Przypomnij się po:</Text>
-              <TextInput
-                style={styles.bell_input}
-                keyboardType="numeric"
-                value={bellTime}
-                onChangeText={value => setBellTime(value)}
-              />
-              <Text style={styles.text}>minutach</Text>
-            </View>
-            <View style={styles.bell_buttons}>
-              <TouchableOpacity
-                style={styles.bell_cancel_button}
-                onPress={() => setShowBellModal(false)}>
-                <Text style={styles.text}>Odrzuć</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.bell_ok_button}
-                onPress={() => {
-                  setShowBellModal(false);
-                  setTaskAlarm();
-                }}>
-                <Text style={styles.text}>OK</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
       <TextInput
         value={name}
         style={styles.input}
         placeholder="Nazwa"
         onChangeText={value => setName(value)}
       />
-      <TextInput
-        value={desc}
-        style={styles.input}
-        placeholder="Opis"
-        multiline
-        onChangeText={value => setDesc(value)}
-      />
       <View style={styles.color_bar}>
-        <TouchableOpacity
-          style={styles.color_white}
-          onPress={() => setColor('white')}>
-          {color === 'white' && (
-            <FontAwesome5 name={'check'} size={25} color={'#000000'} />
-          )}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.color_red}
-          onPress={() => setColor('red')}>
-          {color === 'red' && (
-            <FontAwesome5 name={'check'} size={25} color={'#000000'} />
-          )}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.color_blue}
-          onPress={() => setColor('blue')}>
-          {color === 'blue' && (
-            <FontAwesome5 name={'check'} size={25} color={'#000000'} />
-          )}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.color_green}
-          onPress={() => setColor('green')}>
-          {color === 'green' && (
-            <FontAwesome5 name={'check'} size={25} color={'#000000'} />
-          )}
-        </TouchableOpacity>
-      </View>
-      <View style={styles.extra_row}>
-        <TouchableOpacity
-          style={styles.extra_button}
-          onPress={() => {
-            setShowBellModal(true);
-          }}>
-          <FontAwesome5 name={'bell'} size={25} color={'#ffffff'} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.extra_button}
-          onPress={() => {
-            navigation.navigate('Camera', {id: itemID});
-          }}>
-          <FontAwesome5 name={'camera'} size={25} color={'#ffffff'} />
-        </TouchableOpacity>
+        <View style={styles.color_row}>
+          <TouchableOpacity
+            style={styles.color_white}
+            onPress={() => setColor('white')}>
+            {color === 'white' && (
+              <FontAwesome5 name={'check'} size={25} color={'#000000'} />
+            )}
+          </TouchableOpacity>
+          <Text style={styles.color_row_text}>Bez kategorii</Text>
+        </View>
+        <View style={styles.color_row}>
+          <TouchableOpacity
+            style={styles.color_red}
+            onPress={() => setColor('red')}>
+            {color === 'red' && (
+              <FontAwesome5 name={'check'} size={25} color={'#000000'} />
+            )}
+          </TouchableOpacity>
+          <Text style={styles.color_row_text}>Bardzo potrzebne</Text>
+        </View>
+        <View style={styles.color_row}>
+          <TouchableOpacity
+            style={styles.color_blue}
+            onPress={() => setColor('blue')}>
+            {color === 'blue' && (
+              <FontAwesome5 name={'check'} size={25} color={'#000000'} />
+            )}
+          </TouchableOpacity>
+          <Text style={styles.color_row_text}>Potrzebne</Text>
+        </View>
+        <View style={styles.color_row}>
+          <TouchableOpacity
+            style={styles.color_green}
+            onPress={() => setColor('green')}>
+            {color === 'green' && (
+              <FontAwesome5 name={'check'} size={25} color={'#000000'} />
+            )}
+          </TouchableOpacity>
+          <Text style={styles.color_row_text}>Kup jeśli będzie</Text>
+        </View>
       </View>
       <View style={styles.checkbox}>
         <CheckBox
@@ -215,6 +149,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     margin: 10,
   },
+  color_row: {
+    flex: 1,
+    flexDirection: 'row',
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  color_row_text: {
+    fontSize: 25,
+    color: 'black',
+    marginLeft: 15,
+  },
   input: {
     width: '100%',
     borderWidth: 1,
@@ -231,40 +176,57 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   color_bar: {
-    flexDirection: 'row',
-    height: 50,
-    borderWidth: 2,
-    borderRadius: 10,
-    borderColor: '#555555',
+    width: '100%',
+    height: 255,
     marginVertical: 10,
   },
   color_red: {
+    width: 60,
+    height: 60,
+    maxWidth: 60,
+    backgroundColor: 'red',
     flex: 1,
-    backgroundColor: '#f28',
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 200,
+    borderWidth: 2,
+    borderColor: 'black',
   },
   color_blue: {
+    width: 60,
+    height: 60,
+    maxWidth: 60,
+    backgroundColor: 'blue',
     flex: 1,
-    backgroundColor: '#aecbfa',
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 200,
+    borderWidth: 2,
+    borderColor: 'black',
   },
   color_green: {
+    width: 60,
+    height: 60,
+    maxWidth: 60,
+    backgroundColor: 'green',
     flex: 1,
-    backgroundColor: '#ccff90',
     justifyContent: 'center',
     alignItems: 'center',
-    borderBottomRightRadius: 10,
-    borderTopRightRadius: 10,
+    borderRadius: 200,
+    borderWidth: 2,
+    borderColor: 'black',
   },
   color_white: {
-    flex: 1,
+    width: 60,
+    height: 60,
+    maxWidth: 60,
     backgroundColor: '#ffffff',
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    borderBottomLeftRadius: 10,
-    borderTopLeftRadius: 10,
+    borderRadius: 200,
+    borderWidth: 2,
+    borderColor: 'black',
   },
   extra_row: {
     flexDirection: 'row',

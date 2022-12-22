@@ -7,6 +7,7 @@ import {parse} from '@babel/core';
 import {setItemID, setItems} from '../redux/actions';
 import {FlatList} from 'react-native-gesture-handler';
 import CheckBox from '@react-native-community/checkbox';
+import LinearGradient from 'react-native-linear-gradient';
 
 export default function List({navigation}) {
   const {items} = useSelector(state => state.itemReducer);
@@ -27,18 +28,6 @@ export default function List({navigation}) {
       .catch(err => console.log(err));
   };
 
-  const deleteItem = ID => {
-    const filteredItems = items.filter(item => item.id !== ID);
-    AsyncStorage.setItem('Items', JSON.stringify(filteredItems))
-      .then(() => {
-        dispatch(setItems(filteredItems));
-        Alert.alert('Sukces!', 'Przedmiot skasowany pomyślnie.');
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  };
-
   const checkItem = (ID, newValue) => {
     const index = items.find(item => item.id === ID);
     if (index) {
@@ -50,7 +39,6 @@ export default function List({navigation}) {
       AsyncStorage.setItem('Items', JSON.stringify(newNewItem))
         .then(() => {
           dispatch(setItems(newNewItem));
-          Alert.alert('Sukces!', 'Przedmiot zapisany pomyślnie.');
         })
         .catch(err => console.log(err));
     }
@@ -65,7 +53,7 @@ export default function List({navigation}) {
             style={styles.item}
             onPress={() => {
               dispatch(setItemID(item.id));
-              navigation.navigate('Przedmiot');
+              navigation.navigate('Dodaj przedmiot');
             }}>
             <View style={styles.item_row}>
               <View
@@ -75,26 +63,21 @@ export default function List({navigation}) {
                     backgroundColor: item.color,
                   },
                 ]}></View>
-              <CheckBox
-                value={item.exists}
-                onValueChange={newValue => {
-                  checkItem(item.id, newValue);
-                }}
-              />
               <View style={styles.item_body}>
                 <Text style={styles.name} numberOfLines={1}>
                   {item.name}
-                </Text>
-                <Text style={styles.desc} numberOfLines={1}>
-                  {item.desc}
                 </Text>
               </View>
               <TouchableOpacity
                 style={styles.delete}
                 onPress={() => {
-                  deleteItem(item.id);
+                  checkItem(item.id, true);
                 }}>
-                <FontAwesome5 name={'trash'} size={25} color={'#ff3636'} />
+                <FontAwesome5
+                  name={'check-circle'}
+                  size={35}
+                  color={'#00DB13'}
+                />
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
@@ -103,14 +86,18 @@ export default function List({navigation}) {
           index.toString();
         }}
       />
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => {
-          dispatch(setItemID(items.length + 1));
-          navigation.navigate('Przedmiot');
-        }}>
-        <FontAwesome5 name={'plus'} size={20} color={'#ffffff'} />
-      </TouchableOpacity>
+      <LinearGradient
+        colors={['#7D0085', '#430085']}
+        style={styles.buttonGradient}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            dispatch(setItemID(items.length + 1));
+            navigation.navigate('Dodaj przedmiot');
+          }}>
+          <FontAwesome5 name={'plus'} size={20} color={'#ffffff'} />
+        </TouchableOpacity>
+      </LinearGradient>
     </View>
   );
 }
@@ -119,17 +106,23 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
   },
-  button: {
+  buttonGradient: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#B400D0',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
     bottom: 10,
     right: 10,
     elevation: 5,
+  },
+  button: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   item_row: {
     flexDirection: 'row',

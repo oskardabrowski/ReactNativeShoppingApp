@@ -58,7 +58,7 @@ function HomeTabs() {
         },
       })}
       tabBarOptions={{
-        activeTintColor: '#B400D0',
+        activeTintColor: '#430085',
         inactiveTintColor: '#777777',
         labelStyle: {fontSize: 15, fontWeight: 'bold'},
       }}>
@@ -87,7 +87,7 @@ const App = () => {
           screenOptions={{
             headerTitleAlign: 'center',
             headerStyle: {
-              backgroundColor: '#B400D0',
+              backgroundColor: '#430085',
             },
             headerTintColor: '#ffffff',
             headerTitleStyle: {
@@ -102,9 +102,12 @@ const App = () => {
               headerShown: false,
             }}
           />
-          <RootStack.Screen name="Zakupy" component={HomeTabs} />
-          <RootStack.Screen name="Przedmiot" component={Item} />
-          <RootStack.Screen name="Camera" component={Camera} />
+          <RootStack.Screen
+            name="Zakupy"
+            options={{headerShown: false}}
+            component={HomeTabs}
+          />
+          <RootStack.Screen name="Dodaj przedmiot" component={Item} />
         </RootStack.Navigator>
       </NavigationContainer>
     </Provider>

@@ -1,6 +1,7 @@
 import React, {useEffect} from 'react';
 import {View, StyleSheet, Text, Image} from 'react-native';
 import PushNotification from 'react-native-push-notification';
+import LinearGradient from 'react-native-linear-gradient';
 
 const Splash = ({navigation}) => {
   useEffect(() => {
@@ -18,17 +19,45 @@ const Splash = ({navigation}) => {
   };
 
   return (
-    <View style={styles.body}>
+    <LinearGradient
+      colors={['#00A6E8', '#00E7B0']}
+      style={styles.linearGradient}>
       <Image
         style={styles.logo}
         source={require('../../assets/shopping-bags.png')}
       />
       <Text style={styles.text}>ShoppingApp</Text>
-    </View>
+      <View style={styles.attribution}>
+        <Text style={styles.attrtext}>
+          Icon made by Dighital from www.flaticon.com
+        </Text>
+      </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
+  linearGradient: {
+    flex: 1,
+    paddingLeft: 15,
+    paddingRight: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  attribution: {
+    position: 'absolute',
+    bottom: 1,
+    width: '100%',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  attrtext: {
+    fontSize: 15,
+    color: '#ffffff',
+    fontWeight: 'bold',
+  },
   body: {
     flex: 1,
     alignItems: 'center',
